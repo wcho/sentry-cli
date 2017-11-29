@@ -723,7 +723,20 @@ fn execute_files_upload_sourcemaps<'a>(ctx: &ReleaseContext,
     }
 
     if matches.is_present("validate") {
-        processor.validate_all()?;
+        match processor.validate_all() {
+            Ok(()) => {},
+            Err(err) => {
+                if matches.is_present("no_sourcemap_reference") &&
+                   processor.has_missing_references() {
+                   println!("");
+                   println!("hint: Some files do not have sourcemap references but you \
+                             disabled autodetection of sourcemap references.\n\
+                             Don't pass --no-sourcemap-reference to enable \
+                             autodetection of sourcemap references.");
+                }
+                return Err(err);
+            }
+        }
     }
 
     let org = ctx.get_org()?;

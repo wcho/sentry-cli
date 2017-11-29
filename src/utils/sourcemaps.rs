@@ -179,6 +179,7 @@ struct Source {
 pub struct SourceMapProcessor {
     pending_sources: HashSet<(String, PathBuf)>,
     sources: HashMap<String, Source>,
+    has_missing_references: RefCell<bool>,
 }
 
 impl Source {
@@ -226,6 +227,7 @@ impl SourceMapProcessor {
         SourceMapProcessor {
             pending_sources: HashSet::new(),
             sources: HashMap::new(),
+            has_missing_references: RefCell::new(false),
         }
     }
 
@@ -288,6 +290,7 @@ impl SourceMapProcessor {
             let full_url = join_url(&source.url, url)?;
             info!("found sourcemap for {} at {}", &source.url, full_url);
         } else if source.ty == SourceType::MinifiedScript {
+            *self.has_missing_references.borrow_mut() = true;
             source.error("missing sourcemap!".into());
         }
         Ok(())
@@ -396,6 +399,10 @@ impl SourceMapProcessor {
 
         self.dump_log("Source Map Validation Report");
         fail!("Encountered problems when validating source maps.");
+    }
+
+    pub fn has_missing_references(&self) -> bool {
+        *self.has_missing_references.borrow()
     }
 
     /// Automatically rewrite all source maps.
