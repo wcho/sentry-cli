@@ -122,6 +122,8 @@ function downloadBinary() {
   }
 
   const proxyUrl = Proxy.getProxyForUrl(downloadUrl);
+  console.log('proxyUrl', proxyUrl);
+  console.log(process.env);
   const agent = proxyUrl ? new HttpsProxyAgent(proxyUrl) : null;
 
   return fetch(downloadUrl, {
