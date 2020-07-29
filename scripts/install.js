@@ -105,6 +105,7 @@ function getTempFile(cached) {
 }
 
 function downloadBinary() {
+  console.log('downloadBinary');
   const arch = os.arch();
   const platform = os.platform();
   const outputPath = helper.getPath();
